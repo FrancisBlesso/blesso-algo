@@ -24,15 +24,24 @@ public class IntGraphBuilder {
 	}
 	
 	/**
-	 * @param directed whether the new graph will be directed
+	 * Creates a builder for a undirected graph.
 	 * @return a new {@link IntGraphBuilder}
 	 */
-	public static IntGraphBuilder graph(boolean directed) {
+	public static IntGraphBuilder undirected() {
 		final IntGraphBuilder builder = new IntGraphBuilder();
-		builder.directed = directed;
+		builder.directed = false;
 		return builder;
 	}
-
+	
+	/**
+	 * Creates a builder for a directed graph.
+	 * @return a new {@link IntGraphBuilder}
+	 */
+	public static IntGraphBuilder directed() {
+		final IntGraphBuilder builder = new IntGraphBuilder();
+		builder.directed = true;
+		return builder;
+	}
 	
 	/**
 	 * Adds <code>numVertices</code> starting from zero.
@@ -79,6 +88,9 @@ public class IntGraphBuilder {
 	public IntGraphBuilder edge(int start, int end){
 		final Edge edge = new Edge(start, end);
 		edges.add(edge);
+		if (!directed) {
+			edges.add(new Edge(end, start));
+		}
 		return this;
 	}
 	/**

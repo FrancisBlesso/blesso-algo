@@ -21,6 +21,7 @@ public class Graph<T> {
 	
 	private final Map<Long, List<Edge>> adjacencies = new HashMap<>();
 	private final boolean directed;
+	private int edgeCount;
 
 	public Graph(Collection<Vertex<T>> vertices, Collection<Edge> edges, boolean directed) {
 		this.directed = directed;
@@ -42,6 +43,7 @@ public class Graph<T> {
 			adjacencies.put(edge.getStart(), adjacencyList);
 		}
 		adjacencyList.add(edge);
+		edgeCount++;
 	}
 
 	private void addVertex(Vertex<T> vertex) {
@@ -59,14 +61,22 @@ public class Graph<T> {
 	public List<Vertex<T>> getVertices() {
 		return Collections.unmodifiableList(vertices);
 	}
+	
+	public int getEdgeCount() {
+		return edgeCount;
+	}
 
 	public Vertex<T> findVertex(Long id) {
 		return vertexMap.get(id);
 	}
 	public List<Edge> findEdges(Vertex<T> vertex) {
-		return Collections.unmodifiableList(adjacencies.get(vertex.getId()));
+		return findEdges(vertex.getId());
 	}
 	public List<Edge> findEdges(Long vertexId) {
-		return Collections.unmodifiableList(adjacencies.get(vertexId));
+		final List<Edge> adjacentEdges = adjacencies.get(vertexId);
+		if (adjacentEdges == null) {
+			return Collections.emptyList();
+		}
+		return Collections.unmodifiableList(adjacentEdges);
 	}
 }

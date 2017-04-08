@@ -55,7 +55,7 @@ public class IntGraphBuilderTest {
 	 */
 	@Test
 	public void testCycle() {
-		final Graph<Integer> graph = IntGraphBuilder.graph(true)
+		final Graph<Integer> graph = IntGraphBuilder.directed()
 				.vertices(5)
 				.cycle(1, 3)
 				.build();
@@ -73,7 +73,7 @@ public class IntGraphBuilderTest {
 	 */
 	@Test
 	public void testEdge() {
-		final Graph<Integer> graph = IntGraphBuilder.graph(true)
+		final Graph<Integer> graph = IntGraphBuilder.directed()
 				.vertices(3)
 				.edge(2, 1)
 				.build();
@@ -83,8 +83,27 @@ public class IntGraphBuilderTest {
 	}
 
 	@Test
+	public void testEdgeDirectedOnlyAddsOneEdge() {
+		final Graph<Integer> graph = IntGraphBuilder.directed()
+				.vertices(3)
+				.edge(2, 1)
+				.build();
+		assertThat(graph.getEdgeCount(), equalTo(1));
+	}
+	
+	@Test
+	public void testEdgeUndirectedAddsTwoEdges() {
+		final Graph<Integer> graph = IntGraphBuilder.undirected()
+				.vertices(3)
+				.edge(2, 1)
+				.build();
+		assertThat(graph.getEdgeCount(), equalTo(2));
+	}
+	
+	
+	@Test
 	public void testMaxEdges() {
-		final Graph<Integer> graph = IntGraphBuilder.graph(true)
+		final Graph<Integer> graph = IntGraphBuilder.directed()
 				.vertices(4)
 				.maxEdges()
 				.build();
