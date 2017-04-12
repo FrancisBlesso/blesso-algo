@@ -64,5 +64,22 @@ public class TreeNode<T> {
 	public TreeNode<T> firstChild() {
 		return children.size() == 0 ? null : children.get(0);
 	}
+
+
+	/**
+	 * @return the first child, or null if there are no children
+	 */
+	public TreeNode<T> findChild(T item) {
+		for (TreeNode<T> child : children) {
+			if (item.equals(child.getItem())) {
+				return child;
+			}
+		}
+		return null;
+	}
 	
+	@Override
+	public String toString() {
+		return "TreeNode<" + item + ">";
+	}
 }

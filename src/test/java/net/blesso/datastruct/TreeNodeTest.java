@@ -73,5 +73,20 @@ public class TreeNodeTest {
 		child.setParent(null);
 		assertThat(parent1.firstChild(), nullValue());
 	}
-
+	
+	public void findChild_notAChildIsNull(){
+		final TreeNode<Integer> parent1 = new TreeNode<>(1);
+		assertThat(parent1.findChild(99), nullValue());
+	}
+	/**
+	 * Test method for {@link net.blesso.datastruct.TreeNode#firstChild()}.
+	 */
+	@Test
+	public void testFindChild() {
+		final TreeNode<Integer> parent1 = new TreeNode<>(1);
+		assertThat(parent1.firstChild(), nullValue());
+		final TreeNode<Integer> child = new TreeNode<>(99);
+		child.setParent(parent1);
+		assertThat(parent1.findChild(99), sameInstance(child));
+	}
 }
