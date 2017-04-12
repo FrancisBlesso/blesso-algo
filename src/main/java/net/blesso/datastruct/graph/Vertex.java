@@ -74,10 +74,7 @@ public class Vertex<T> {
 		}
 		@SuppressWarnings("rawtypes")
 		Vertex other = (Vertex) obj;
-		if (id != other.id) {
-			return false;
-		}
-		return true;
+		return id.equals(other.id);
 	}
 
 	@Override
