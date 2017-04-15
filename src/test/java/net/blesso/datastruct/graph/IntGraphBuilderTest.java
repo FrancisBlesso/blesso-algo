@@ -20,7 +20,7 @@ public class IntGraphBuilderTest {
 	 * @param start the edge's expected start
 	 * @param end the edge's expected end
 	 */
-	private void assertEdge(Edge edge, int start, int end) {
+	private void assertEdge(Edge<Integer> edge, int start, int end) {
 		assertThat(edge.getStart(), equalTo(Long.valueOf(start)));
 		assertThat(edge.getEnd(), equalTo(Long.valueOf(end)));
 	}
@@ -105,7 +105,7 @@ public class IntGraphBuilderTest {
 	public void testMaxEdges() {
 		final Graph<Integer> graph = IntGraphBuilder.directed()
 				.vertices(4)
-				.maxEdges()
+				.clique()
 				.build();
 
 		assertThat(graph.findEdges(0L).size(), equalTo(3));

@@ -20,7 +20,7 @@ import org.junit.Test;
 public class GraphTest {
 	
 	private List<Vertex<Integer>> vertices;
-	private List<Edge> edges;
+	private List<Edge<Integer>> edges;
 	
 	@Before
 	public void setup() {
@@ -33,7 +33,7 @@ public class GraphTest {
 	 */
 	@Test
 	public void testGetEdgeCount() {
-		edges.add(new Edge(0, 1));
+		edges.add(new Edge<Integer>(0, 1, null));
 		final Graph<Integer> graph = new Graph<>(vertices, edges, true);
 		assertThat(graph.getEdgeCount(), equalTo(1));
 	}
@@ -55,7 +55,7 @@ public class GraphTest {
 	@Test
 	public void testFindEdgesVertexOneEdges() {
 		vertices.add(Vertex.of(1));
-		edges.add(new Edge(1, 2));
+		edges.add(new Edge<Integer>(1, 2, null));
 		final Graph<Integer> graph = new Graph<>(vertices, edges, true);
 		assertThat(graph.findEdges(Vertex.of(1)).size(), equalTo(1));
 	}
@@ -66,7 +66,7 @@ public class GraphTest {
 	@Test
 	public void testFindEdgesLong() {
 		vertices.add(Vertex.of(1));
-		edges.add(new Edge(1, 2));
+		edges.add(new Edge<Integer>(1, 2, null));
 		final Graph<Integer> graph = new Graph<>(vertices, edges, true);
 		assertThat(graph.findEdges(1L).size(), equalTo(1));
 	}

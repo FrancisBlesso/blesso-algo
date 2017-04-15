@@ -73,7 +73,7 @@ public class DepthFirstSearcher<T> {
 	void processVertexLate(Vertex<T> vertex){
 		
 	}
-	void processEdge(Edge edge, Vertex<T> start, Vertex<T> end){
+	void processEdge(Edge<T> edge, Vertex<T> start, Vertex<T> end){
 		
 	}
 	
@@ -90,7 +90,7 @@ public class DepthFirstSearcher<T> {
 		vertexFlags.setEntryTime(entryExitCount);
 		entryExitCount++;
 		vertexFlags.setDiscovered();
-		for(Edge edge : graph.findEdges(vertex)) {
+		for(Edge<T> edge : graph.findEdges(vertex)) {
 			final Vertex<T> endVertex = graph.findVertex(edge.getEnd());
 			final VertexFlags<T> endFlags = graphFlags.getVertexFlags(endVertex);
 			if (graphFlags.getVertexState(endVertex) == VertexFlags.VertexState.UNDISCOVERED) {

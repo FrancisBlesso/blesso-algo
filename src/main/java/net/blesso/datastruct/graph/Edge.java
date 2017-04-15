@@ -9,15 +9,16 @@ package net.blesso.datastruct.graph;
  *
  * @author fblesso
  */
-public class Edge {
+public class Edge<T> {
 	
 	private final long start;
 	private final long end;
-	//TODO add weight function
+	private final EdgeWeight<T> weight;
 	
-	public Edge(long start, long end) {
+	public Edge(long start, long end, EdgeWeight<T> weight) {
 		this.start = start;
 		this.end = end;
+		this.weight = weight;
 	}
 
 	public long getStart() {
@@ -26,6 +27,9 @@ public class Edge {
 
 	public long getEnd() {
 		return end;
+	}
+	public EdgeWeight<T> getWeight() {
+		return weight;
 	}
 	@Override
 	public String toString() {

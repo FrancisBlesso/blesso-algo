@@ -19,23 +19,23 @@ public class Graph<T> {
 	private final List<Vertex<T>> vertices = new ArrayList<>();
 	private final Map<Long, Vertex<T>> vertexMap = new HashMap<>();
 	
-	private final Map<Long, List<Edge>> adjacencies = new HashMap<>();
+	private final Map<Long, List<Edge<T>>> adjacencies = new HashMap<>();
 	private final boolean directed;
 	private int edgeCount;
 
-	public Graph(Collection<Vertex<T>> vertices, Collection<Edge> edges, boolean directed) {
+	public Graph(Collection<Vertex<T>> vertices, Collection<Edge<T>> edges, boolean directed) {
 		this.directed = directed;
 		for (Vertex<T> vertex : vertices) {
 			addVertex(vertex);
 		}
 		
-		for(Edge edge : edges) {
+		for(Edge<T> edge : edges) {
 			addEdge(edge);
 		}
 	}
 
-	private void addEdge(Edge edge) {
-		final List<Edge> adjacencyList;
+	private void addEdge(Edge<T> edge) {
+		final List<Edge<T>> adjacencyList;
 		if (adjacencies.containsKey(edge.getStart())) {
 			adjacencyList = adjacencies.get(edge.getStart());
 		} else {
@@ -69,11 +69,11 @@ public class Graph<T> {
 	public Vertex<T> findVertex(Long id) {
 		return vertexMap.get(id);
 	}
-	public List<Edge> findEdges(Vertex<T> vertex) {
+	public List<Edge<T>> findEdges(Vertex<T> vertex) {
 		return findEdges(vertex.getId());
 	}
-	public List<Edge> findEdges(Long vertexId) {
-		final List<Edge> adjacentEdges = adjacencies.get(vertexId);
+	public List<Edge<T>> findEdges(Long vertexId) {
+		final List<Edge<T>> adjacentEdges = adjacencies.get(vertexId);
 		if (adjacentEdges == null) {
 			return Collections.emptyList();
 		}
