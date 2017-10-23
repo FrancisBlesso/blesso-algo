@@ -28,11 +28,11 @@ public class BidirectionalSearcherTest {
 	public void setup() {
 		left = new Node();
 		right = new Node();
-		searcher = new BidirectionalSearcher();
+		searcher = new BidirectionalSearcher(left, right);
 	}
 	
 	private List<Node> assertSuccess(int pathSize) {
-		final List<Node> path = searcher.bidirectionalSearch(left, right);
+		final List<Node> path = searcher.bidirectionalSearch();
 		assertThat(path.size(), equalTo(pathSize));
 		assertThat(path.get(0), equalTo(left));
 		assertThat(path.get(pathSize -1), equalTo(right));
@@ -45,7 +45,7 @@ public class BidirectionalSearcherTest {
 
 	@Test
 	public void whenNotConnectedThenReturnNull() {
-		List<Node> path = searcher.bidirectionalSearch(left, right);
+		List<Node> path = searcher.bidirectionalSearch();
 		assertThat(path, CoreMatchers.nullValue());
 	}
 	
