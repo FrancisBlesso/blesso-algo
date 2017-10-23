@@ -4,7 +4,7 @@
 package net.blesso.datastruct.graph;
 
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
 
 import java.util.List;
 
@@ -12,117 +12,129 @@ import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Test;
 
-import net.blesso.datastruct.graph.BidirectionalSearcher.Node;
-
 /**
  * @author fblesso
  *
  */
 public class BidirectionalSearcherTest {
 	
-	private Node left;
-	private Node right;
-	private BidirectionalSearcher searcher;
+	private final static int LEFT = -1;
+	private final static int RIGHT = -2;
+	
+	private IntGraphBuilder graphBuilder;
 	
 	@Before
 	public void setup() {
-		left = new Node();
-		right = new Node();
-		searcher = new BidirectionalSearcher(left, right);
+		graphBuilder = IntGraphBuilder.directed()
+				.vertex(LEFT)
+				.vertex(RIGHT);
+	}
+
+	private BidirectionalSearcher<Integer> createSearcher() {
+		final Graph<Integer> graph = graphBuilder.build();
+		final Vertex<Integer> left = graph.findVertex((long) LEFT);
+		final Vertex<Integer> right = graph.findVertex((long) RIGHT);
+
+		return new BidirectionalSearcher<Integer>(graph, left, right);
 	}
 	
-	private List<Node> assertSuccess(int pathSize) {
-		final List<Node> path = searcher.bidirectionalSearch();
+	private List<Vertex<Integer>> assertSuccess(int pathSize) {
+		final Graph<Integer> graph = graphBuilder.build();
+		final Vertex<Integer> left = graph.findVertex((long) LEFT);
+		final Vertex<Integer> right = graph.findVertex((long) RIGHT);
+
+		final BidirectionalSearcher<Integer> searcher = createSearcher();
+		
+		final List<Vertex<Integer>> path = searcher.bidirectionalSearch();
 		assertThat(path.size(), equalTo(pathSize));
 		assertThat(path.get(0), equalTo(left));
 		assertThat(path.get(pathSize -1), equalTo(right));
 		return path;
 	}
 	
-	private void addEdge(Node parent, Node child) {
-		parent.addChild(child);
+	private void addEdge(int parent, int child) {
+		graphBuilder.edge(parent, child);
 	}
 
 	@Test
 	public void whenNotConnectedThenReturnNull() {
-		List<Node> path = searcher.bidirectionalSearch();
+		final List<Vertex<Integer>> path = createSearcher().bidirectionalSearch();
 		assertThat(path, CoreMatchers.nullValue());
 	}
 	
 	@Test
 	public void whenLeftToRightThenFound() {
-		addEdge(left, right);
+		addEdge(LEFT, RIGHT);
 		assertSuccess(2);
 	}
 	
 	@Test
 	public void whenRightToLeftThenFound() {
-		addEdge(right, left);
+		addEdge(RIGHT, LEFT);
 		assertSuccess(2);
 	}
 	
 	@Test
 	public void whenBothDirectionsThenFound() {
-		addEdge(right, left);
-		addEdge(left, right);
+		addEdge(RIGHT, LEFT);
+		addEdge(LEFT, RIGHT);
 		assertSuccess(2);
 	}
 	
 	@Test
 	public void whenMiddleThenFound() {
-		final Node middle = new Node();
-		addEdge(left, middle);
-		addEdge(right, middle);
-		final List<Node> path = assertSuccess(3);
-		assertThat(path.get(1), equalTo(middle));
+		final int middle = 123;
+		graphBuilder.vertex(middle);
+		addEdge(LEFT, middle);
+		addEdge(RIGHT, middle);
+		final List<Vertex<Integer>> path = assertSuccess(3);
+		assertThat(path.get(1).getItem(), equalTo(middle));
 	}
 	
 	@Test
 	public void whenMiddleBothDirectionsThenFound() {
-		final Node middle = new Node();
-		addEdge(left, middle);
-		addEdge(right, middle);
-		addEdge(middle, left);
-		addEdge(middle, right);
-		final List<Node> path = assertSuccess(3);
-		assertThat(path.get(1), equalTo(middle));
+		final int middle = 123;
+		graphBuilder.vertex(middle);
+		addEdge(LEFT, middle);
+		addEdge(RIGHT, middle);
+		addEdge(middle, LEFT);
+		addEdge(middle, RIGHT);
+		final List<Vertex<Integer>> path = assertSuccess(3);
+		assertThat(path.get(1).getItem(), equalTo(middle));
 	}
 	
+	/**
+	 * Adds vertices from 0 to <code>size</code> and edges between them.
+	 * @param size number of vertices to add.
+	 */
+	private void addBigPath(int size) {
+		graphBuilder.vertices(size);
+		for (int i = 0; i <= size; i++) {
+			addEdge(i, i+1);
+		}
+	}
 	@Test
 	public void whenRightToLeftBigThenFound() {
-		Node node = right;
-		for (int i = 0; i<10; i++) {
-			final Node child = new Node();
-			addEdge(node, child);
-			node = child;
-		}
-		addEdge(node, left);
+		addBigPath(10);
+		addEdge(RIGHT, 0);
+		addEdge(9, LEFT);
 		assertSuccess(12);
 	}
 	
 	@Test
 	public void whenLeftToRightBigThenFound() {
-		Node node = left;
-		for (int i = 0; i<10; i++) {
-			final Node child = new Node();
-			addEdge(node, child);
-			node = child;
-		}
-		addEdge(node, right);
+		addBigPath(10);
+		addEdge(LEFT, 0);
+		addEdge(9, RIGHT);
 		assertSuccess(12);
 	}
 	
 	@Test
 	public void whenMultiplePathsThenShortestFound() {
-		Node node = left;
-		for (int i = 0; i<20; i++) {
-			final Node child = new Node();
-			addEdge(node, child);
-			node = child;
-		}
-		addEdge(node, right);
-		addEdge(right, node);
-		addEdge(node, left);
+		addBigPath(10);
+		addEdge(LEFT, 0);
+		addEdge(9, RIGHT);
+		addEdge(LEFT, 9);
 		assertSuccess(3);
 	}
 
