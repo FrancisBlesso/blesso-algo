@@ -109,7 +109,7 @@ public class BidirectionalSearcherTest {
 	 */
 	private void addBigPath(int size) {
 		graphBuilder.vertices(size);
-		for (int i = 0; i <= size; i++) {
+		for (int i = 0; i < size -1; i++) {
 			addEdge(i, i+1);
 		}
 	}
@@ -136,6 +136,17 @@ public class BidirectionalSearcherTest {
 		addEdge(9, RIGHT);
 		addEdge(LEFT, 9);
 		assertSuccess(3);
+	}
+
+	@Test
+	public void whenCycleItStillWorks() {
+		addBigPath(10);
+		addEdge(LEFT, 0);
+		addEdge(0, LEFT);
+		addEdge(9, RIGHT);
+		addEdge(RIGHT, 9);
+		addEdge(5, 3);
+		assertSuccess(12);
 	}
 
 }

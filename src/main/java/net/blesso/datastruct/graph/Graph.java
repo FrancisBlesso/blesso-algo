@@ -16,15 +16,23 @@ import java.util.Map;
  * @author fblesso
  */
 public class Graph<T> {
-	private final List<Vertex<T>> vertices = new ArrayList<>();
+	private final List<Vertex<T>> vertices;
 	private final Map<Long, Vertex<T>> vertexMap = new HashMap<>();
 	
 	private final Map<Long, List<Edge<T>>> adjacencies = new HashMap<>();
 	private final boolean directed;
 	private int edgeCount;
 
+	/**
+	 * @param vertices
+	 * @param edges
+	 * @param directed
+	 * 
+	 * @throws IllegaArgumentException if there is a bad vertex reference.
+	 */
 	public Graph(Collection<Vertex<T>> vertices, Collection<Edge<T>> edges, boolean directed) {
 		this.directed = directed;
+		this.vertices = Collections.unmodifiableList(new ArrayList<>(vertices));
 		for (Vertex<T> vertex : vertices) {
 			addVertex(vertex);
 		}
@@ -32,6 +40,7 @@ public class Graph<T> {
 		for(Edge<T> edge : edges) {
 			addEdge(edge);
 		}
+		validateEdges();
 	}
 
 	private void addEdge(Edge<T> edge) {
@@ -50,7 +59,6 @@ public class Graph<T> {
 		if (vertexMap.containsKey(vertex.getId())) {
 			throw new IllegalArgumentException("the graph already contains the vertex" + vertex);
 		}
-		vertices.add(vertex);
 		vertexMap.put(vertex.getId(), vertex);
 	}
 
@@ -59,7 +67,7 @@ public class Graph<T> {
 	}
 	
 	public List<Vertex<T>> getVertices() {
-		return Collections.unmodifiableList(vertices);
+		return vertices;
 	}
 	
 	public int getEdgeCount() {
@@ -78,5 +86,22 @@ public class Graph<T> {
 			return Collections.emptyList();
 		}
 		return Collections.unmodifiableList(adjacentEdges);
+	}
+	
+	/**
+	 * Ensures that all edges refer to existing vertices.
+	 * @throws IllegaArgumentException if there is a bad vertex reference.
+	 */
+	public void validateEdges() {
+		for (Collection<Edge<T>> edges : adjacencies.values()) {
+			for (Edge<T> edge : edges) {
+				if (findVertex(edge.getStart()) == null) {
+					throw new IllegalArgumentException("no start vertex for " + edge);
+				}
+				if (findVertex(edge.getEnd()) == null) {
+					throw new IllegalArgumentException("no end vertex for " + edge);
+				}
+			}
+		}
 	}
 }
