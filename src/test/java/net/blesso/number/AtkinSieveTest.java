@@ -159,7 +159,7 @@ public class AtkinSieveTest {
 		testNthPrime(1299709, 100*1000);
 	}
 
-	@Test
+	//@Test
 	public void test10Exp06() {
 		testNthPrime(15485863, 1000*1000);
 	}

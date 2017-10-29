@@ -80,7 +80,7 @@ public class ErastosthenesSieveTest {
 		testNthPrime(15485863, 1000*1000);
 	}
 
-	@Test
+	//@Test
 	public void test10Exp07() {
 		testNthPrime(179424673, 10*1000*1000);
 	}
