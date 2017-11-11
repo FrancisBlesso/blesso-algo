@@ -4,9 +4,9 @@
 package net.blesso.datastruct.graph;
 
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Set;
+import java.util.PriorityQueue;
+import java.util.Queue;
 
 import net.blesso.datastruct.TreeNode;
 
@@ -22,20 +22,16 @@ public class Dijkstra<T> {
 	/** The graph to search.*/
 	private final Graph<T> graph;
 	
-	/** 
-	 * The current best distance for each vertex from the start. For any vertex, the distance will
-	 * decrease as the algorithm discovers more efficient routes. 
+	/**
+	 * Tracks a node's current distance and other information about each vertex.
 	 */
-	private final Map<Vertex<T>, Double> distances = new HashMap<>();
-
-	/** Keeps track of each's vertex's {@link TreeNode}. */
-	private final Map<Vertex<T>, TreeNode<Vertex<T>>> treeNodes = new HashMap<>();
+	private final Map<Vertex<T>, DijkstraNode<T>> nodes = new HashMap<>();
 	
 	/** 
 	 * The vertices remaining to be processed. The algorithm removes vertices from this set 
 	 * in order of the distance from the starting vertex. 
 	 */
-	private final Set<Vertex<T>> unprocessedVertices = new LinkedHashSet<>();
+	private final Queue<DijkstraNode<T>> nextVertices = new PriorityQueue<>();
 	
 	public Dijkstra(Graph<T> graph) {
 		this.graph = graph;
@@ -46,13 +42,9 @@ public class Dijkstra<T> {
 	 * to a maximum value.
 	 */
 	private void initialize() {
-		distances.clear();
-		treeNodes.clear();
-		unprocessedVertices.clear();
+		nodes.clear();
 		for(Vertex<T> vertex : graph.getVertices()) {
-			distances.put(vertex,  Double.MAX_VALUE);
-			unprocessedVertices.add(vertex);
-			treeNodes.put(vertex, new TreeNode<>(vertex));
+			nodes.put(vertex, new DijkstraNode<>(vertex));
 		}
 	}
 
@@ -82,46 +74,32 @@ public class Dijkstra<T> {
 	public TreeNode<Vertex<T>> search(Vertex<T> firstVertex) {
 		initialize();
 		
-		distances.put(firstVertex, 0.0);
+		final DijkstraNode<T> firstNode = nodes.get(firstVertex);
+		firstNode.distance = 0.0;
+		nextVertices.add(firstNode);
 		
-		Vertex<T> currentVertex = firstVertex;
-		
-		while(currentVertex != null) {
-			unprocessedVertices.remove(currentVertex);
-			final TreeNode<Vertex<T>> currentTreeNode = treeNodes.get(currentVertex);
-			final double currentDistance = distances.get(currentVertex);
+		while(!nextVertices.isEmpty()) {
+			final DijkstraNode<T> currentNode = nextVertices.remove();
+			final Vertex<T> currentVertex = currentNode.vertex;
+			currentNode.processed = true;
+			final double currentDistance = currentNode.distance;
 			for(Edge<T> edge : graph.findEdges(currentVertex)) {
 				final Vertex<T> endVertex = graph.findVertex(edge.getEnd());
+				final DijkstraNode<T> endNode = nodes.get(endVertex);
+				if (!endNode.processed) {
+					nextVertices.add(endNode);
+				}
 				final Double weight = edge.getWeight().weight(currentVertex, endVertex);
 				final Double endVertexDistance = currentDistance + weight;
-				if (distances.get(endVertex) > endVertexDistance) {
-					distances.put(endVertex, endVertexDistance);
-					final TreeNode<Vertex<T>> endTreeNode = treeNodes.get(endVertex);
-					endTreeNode.setParent(currentTreeNode);
+				if (endNode.distance > endVertexDistance) {
+					endNode.distance = endVertexDistance;
+					endNode.setParent(currentNode);
 				}
 			}
-			currentVertex = getClosestVertex();
 		}
-		return treeNodes.get(firstVertex);
+		return firstNode.treeNode;
 	}
 
-	/**
-	 * Iterates through all the unprocessed vertices and determines which has a distance closest to the 
-	 * start vertex.
-	 * @return the {@link Vertex} closest to the start vertex from the collection of unprocessed vertices
-	 */
-	private Vertex<T> getClosestVertex() {
-		Vertex<T> currentVertex = null;
-		double distance = Double.MAX_VALUE;
-		for(Vertex<T> vertex : unprocessedVertices){
-			Double currDistance = distances.get(vertex);
-			if ( currDistance < distance) {
-				distance = currDistance;
-				currentVertex = vertex;
-			}
-		}
-		return currentVertex;
-	}
 
 	//TODO not ready yet.
 //	public List<Vertex<T>> bestPath(Vertex<T> firstVertex, Vertex<T> endVertex) {
@@ -137,4 +115,63 @@ public class Dijkstra<T> {
 //		}
 //		return returnList;
 //	}
+	
+	/**
+	 * Maintains state for each {@link Vertex} during the search.
+	 * 
+	 * @param <T> they {@link Vertex}'s type
+	 */
+	private static class DijkstraNode<T> implements Comparable<DijkstraNode<T>> {
+		
+		/** The corresponding vertex. */
+		private final Vertex<T> vertex;
+		
+		/** {@link TreeNode} for the shortest path tree from the original node. */
+		private final TreeNode<Vertex<T>> treeNode;
+		
+		/** 
+		 * The current best distance for each vertex from the start. For any vertex, the distance will
+		 * decrease as the algorithm discovers more efficient routes. 
+		 */
+		private double distance = Double.MAX_VALUE;
+		
+		/** Whether we've handled this vertex already. */
+		private boolean processed = false;;
+		
+		private DijkstraNode(Vertex<T> vertex) {
+			this.vertex = vertex;
+			treeNode = new TreeNode<Vertex<T>>(vertex);
+		}
+		
+		private void setParent(DijkstraNode<T> parent) {
+			treeNode.setParent(parent.treeNode);
+		}
+
+		@Override
+		public int compareTo(final DijkstraNode<T> o) {
+			if (distance < o.distance) {
+				return -1;
+			} else if (distance > o.distance) {
+				return 1;
+			} else {
+				return 0;
+			}
+		}
+
+		@Override
+		public int hashCode() {
+			return vertex.hashCode();
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (obj instanceof Dijkstra.DijkstraNode<?>) {
+				final DijkstraNode<?> other = (DijkstraNode<?>) obj;
+				return vertex.equals(other.vertex);
+			} else {
+				return false;
+			}
+		}
+		
+	}
 }
